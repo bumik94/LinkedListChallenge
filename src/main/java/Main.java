@@ -1,5 +1,9 @@
 
 public class Main {
-  public static void main(String[] args) {
-  }
+    
+    public static void main(String[] args) {
+
+        Places places = new Places();
+        places.printList();
+    }
 }

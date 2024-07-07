@@ -1,39 +1,56 @@
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Collections;
-import java.lang.Comparable;
 import java.util.Scanner;
 
+record City(String name, int distance) {}
+
 public class Places {
-    private final LinkedList<Town> list = new LinkedList<>();
+    private final LinkedList<City> places = new LinkedList<>();
 
     public Places() {
 
-        this.list.add(new Town("Adelaide", 1374));
-        this.list.add(new Town("Alice Springs", 2771));
-        this.list.add(new Town("Brisbane", 917));
-        this.list.add(new Town("Darwin", 3972));
-        this.list.add(new Town("Melbourne", 877));
-        this.list.add(new Town("Perth", 3923));
-        this.list.add(new Town("Sydney", 0));
-        Collections.sort(list);
+        addPlace(new City("Adelaide", 1374));
+        addPlace(new City("Alice Springs", 2771));
+        addPlace(new City("Brisbane", 917));
+        addPlace(new City("Darwin", 3972));
+        addPlace(new City("Melbourne", 877));
+        addPlace(new City("Perth", 3923));
+        addPlace(new City("Sydney", 0));
     }
 
-    private void printList() {
+    private void addPlace(City city) {
 
-        for (Town town : list) {
+        if (places.contains(city)) {
+            System.out.println("Duplicate found");
+            return;
+        }
+        if (places.isEmpty()) {
+            places.add(city);
+            return;
+        }
+        for (var place : places) {
+            if (place.distance() > city.distance()) {
+                places.add(places.indexOf(place) , city);
+                return;
+            }
+        }
+        places.add(city);
+    }
+
+    public void printList() {
+
+        for (City city : places) {
             //System.out.println(town.getName() + " " + town.getDistance());
-            System.out.printf("%-15s %4d%n", town.getName(), town.getDistance());
+            System.out.printf("%-15s %4d%n", city.name(), city.distance());
             System.out.println("-".repeat(20));
         }
     }
 
     public void menu() {
-         String selection;
-        boolean      quit = false;
-            var  iterator = list.listIterator(1);
-         String printMenu = """
+        var      iterator  = places.listIterator();
+        boolean  quit      = false;
+        boolean  forward   = true;
+        String   selection;
+        String   printMenu = """
                 Available actions (select word or letter)
                 (F)orward
                 (B)ackwards
@@ -43,19 +60,37 @@ public class Places {
 
         System.out.println(printMenu);
         do {do { selection = getString(); } while (selection.isEmpty());
+            if (!iterator.hasPrevious()) {
+                System.out.printf("Originating from %s%n", iterator.next().name());
+            }
+            if (!iterator.hasNext()) {
+                System.out.printf("Finishing in %s%n", iterator.previous().name());
+            }
             switch (selection.toLowerCase().charAt(0)) {
                 case ('f') -> {
+                    if (!forward) {
+                        forward = true;
+                        if (iterator.hasNext()) {
+                            iterator.next();
+                        }
+                    }
                     if (iterator.hasNext()) {
                         var nextTown = iterator.next();
-                        System.out.printf("%s (%d km away from Sydney)%n", nextTown.getName(), nextTown.getDistance());
+                        System.out.printf("%s (%d km away from Sydney)%n", nextTown.name(), nextTown.distance());
                     } else {
                         System.out.println("You reached the end");
                     }
                 }
                 case ('b') -> {
+                    if (forward) {
+                        forward = false;
+                        if (iterator.hasPrevious()) {
+                            iterator.previous();
+                        }
+                    }
                     if (iterator.hasPrevious()) {
                         var previousTown = iterator.previous();
-                        System.out.printf("%s (%d km away from Sydney)%n", previousTown.getName(), previousTown.getDistance());
+                        System.out.printf("%s (%d km away from Sydney)%n", previousTown.name(), previousTown.distance());
                     } else {
                         System.out.println("You're at the beginning");
                     }
@@ -72,28 +107,5 @@ public class Places {
 
         System.out.print("# ");
         return s.nextLine();
-    }
-}
-
-class Town implements Comparable<Town>{
-    private final String name;
-    private final Integer distance; // Comparable doesn't work on primitive data types
-
-    public Town(String name, int distance) {
-        this.name = name;
-        this.distance = distance;
-    }
-
-    @Override
-    public int compareTo(Town town) {
-        return distance.compareTo(town.distance);
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public int getDistance() {
-        return this.distance;
     }
 }

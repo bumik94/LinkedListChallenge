@@ -1,5 +1,8 @@
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.Collections;
+import java.lang.Comparable;
+import java.util.Scanner;
 
 public class Places {
     private LinkedList<Town> list = new LinkedList<>();
@@ -14,20 +17,27 @@ public class Places {
     }
 
     public void printList() {
+        Collections.sort(list);
         for (Town town : list) {
-            System.out.println(town.getName() + " " + town.getDistance());
+            //System.out.println(town.getName() + " " + town.getDistance());
+            System.out.printf("%s20", town.getName());
             
         }
     }
 }
 
-class Town {
-    private String name;
-    private    int distance;
+class Town implements Comparable<Town>{
+    private  String name;
+    private Integer distance; // Comparable doesn't work on primitive data types
 
     public Town(String name, int distance) {
         this.name = name;
         this.distance = distance;
+    }
+
+    @Override
+    public int compareTo(Town town) {
+        return distance.compareTo(town.distance);
     }
 
     public String getName() {
